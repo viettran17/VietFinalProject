@@ -41,7 +41,7 @@ module.exports.login = async (email, password) => {
         );
     } else if (user) {
         const result = await bcrypt.compare(password, user.password);
-        if (user && result == true &&user .status === true) {
+        if (user && result == true && user.status === true) {
             return {
                 userInfo: user,
                 token: this.encodedToken(user.id, user.email, user.role),
@@ -72,7 +72,7 @@ module.exports.forgetPassword = async (_id, newPassword) => {
 };
 
 module.exports.changePassword = async (userId, curentPassword, newPassword) => {
-    const user = await User.FindOne({_id: userId});
+    const user = await UsersModel.findOne({_id: userId});
     const comparePassword = bcrypt.compareSync(curentPassword, user.password);
     if (comparePassword == true) {
         const salt = await bcrypt.gensalt(10);
@@ -85,17 +85,17 @@ module.exports.changePassword = async (userId, curentPassword, newPassword) => {
 };
 
 module.exports.getMe = async (id) => {
-    const me = await user.FindById(id);
+    const me = await UsersModel.findById(id);
     return me;
 };
 
 module.exports.findUserByGoogleId = async (googleId) => {
-    const user = await User.FindOne({ googleId: googleId});
+    const user = await UsersModel.findOne({ googleId: googleId});
     return user;
 };
 
 module.exports.findUserByFacebookId = async (facebookId) => {
-    const user = await User.FindOne({ facebookId: facebookId});
+    const user = await UsersModel.findOne({ facebookId: facebookId});
     return user;
 };
 
