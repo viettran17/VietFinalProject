@@ -1,6 +1,6 @@
 const express = require("express");
 const routers = express.Router();
-const { login, register, findUserByEmail, findUserByGoogleId, endcodedToken } = require("../services/users");
+const { login, register, findUserByEmail, findUserByGoogleId, encodedToken } = require("../services/users");
 const joi = require("joi");
 const { authMiddleware } = require("../middlewares/auth");
 const axios = require("axios");
@@ -92,36 +92,33 @@ routers.post("/register", async (req, res) => {
 });
 
 routers.post("/google", async (req, res) => {
-    console.log(req.body.access_token);
     try {
         const response = await axios.default.get(
             `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${req.body.access_token}`
         );
-        console.log(response);
         if (response.data) {
             const user = await findUserByGoogleId(response.data.id);
             if (user) {
-                console.log(1);
                 if (user.status === false) {
                     return res.status(400).json({
                         message: "Your account has been block"});
                 }
-                const token = endcodedToken(user._id, user.email, user.role);
-                return res.status(200).json(user, token);
+                const token = encodedToken(user._id, user.email, user.role);
+                return res.status(200).json({user, token});
             } else {
-                console.log(2);
                 const newUser = new UsersModel({
                     googleId: response.data.id,
                     email: response.data.email,
-                    full_name: response.data.full_name,
+                    full_name: response.data.name,
                     imageUrl: response.data.picture,
                 });
                 const userData = await newUser.save();
-                const token = endcodedToken(
+                const token = encodedToken(
                     userData._id, 
                     userData.email,
                     userData.role,
                     )
+                    console.log(token);
                 return res.status(200).json({ user: userData, token: token });
             }
         } else {
