@@ -118,7 +118,6 @@ routers.post("/google", async (req, res) => {
                     userData.email,
                     userData.role,
                     )
-                    console.log(token);
                 return res.status(200).json({ user: userData, token: token });
             }
         } else {
